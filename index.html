@@ -503,6 +503,42 @@
             });
         }
         
+        // Bar chart where bars are green/red based on a threshold
+        // dir: 'above' = green if value >= threshold; 'below' = green if value <= threshold
+        function createThresholdBarChart(canvasId, data, threshold, dir = 'above') {
+            if (charts[canvasId]) { charts[canvasId].destroy(); }
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+            if (labels.length === 0) return;
+            const GREEN = '#60C0A8', RED = '#DC3545';
+            const barColors = values.map(v =>
+                dir === 'above' ? (v >= threshold ? GREEN : RED)
+                                : (v <= threshold ? GREEN : RED)
+            );
+            charts[canvasId] = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{ data: values, backgroundColor: barColors, borderWidth: 0, borderRadius: 3 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                        y: { beginAtZero: true, grid: { color: '#E9ECEF' }, ticks: { precision: 0, font: { size: 9 } } }
+                    },
+                    animation: false
+                }
+            });
+        }
+
         function createStackedBarChart(canvasId, data, colorMap) {
             const ctx = document.getElementById(canvasId).getContext('2d');
             
@@ -577,7 +613,8 @@
         }
         
         function updateTasksOverdue(data) {
-            createBarChart('tasksChart', data.by_owner || {}, colors.primary, true);
+            // KPI: ≤ 40 = green, > 40 = red
+            createThresholdBarChart('tasksChart', data.by_owner || {}, 40, 'below');
         }
 
         function updateSpeedToLead(data) {
@@ -657,14 +694,16 @@
                         'meetings': '#A0E0D0'
                     });
                     
-                    createBarChart('sqlChart', data.sql_30d || {}, colors.primary, true);
+                    // SQLs: KPI ≥ 6.75 = green, < 6.75 = red
+                    createThresholdBarChart('sqlChart', data.sql_30d || {}, 6.75, 'above');
                     
-                    // Deals stacked chart
+                    // Deals stacked chart with KPI threshold annotation (≥ 2.25 = green)
                     const dealsData = {};
+                    const dealsTotals = {};
                     Object.entries(data.deals_30d || {}).forEach(([owner, stages]) => {
                         dealsData[owner] = stages;
+                        dealsTotals[owner] = Object.values(stages).reduce((a, b) => a + b, 0);
                     });
-                    
                     createStackedBarChart('dealsChart', dealsData, {
                         'Intent to Buy': '#A0E0D0',
                         'Visit Dates Planned': '#80D0BC',
@@ -672,6 +711,13 @@
                         'Offer': '#45A08C',
                         'Reservation/Offer Accepted': '#338070'
                     });
+                    // Colour the card border green/red based on team total vs KPI 2.25
+                    const dealsCard = document.getElementById('dealsChart')?.closest('.card');
+                    if (dealsCard) {
+                        const teamTotal = Object.values(dealsTotals).reduce((a,b)=>a+b,0);
+                        const perPerson = teamTotal / Math.max(Object.keys(dealsTotals).length, 1);
+                        dealsCard.style.borderTop = `3px solid ${perPerson >= 2.25 ? '#60C0A8' : '#DC3545'}`;
+                    }
                 })
                 .catch(error => console.error('Error fetching dashboard data:', error));
         }
