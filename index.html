@@ -27,21 +27,23 @@
         }
         
         .header {
-            height: 36px;
-            min-height: 36px;
+            height: 38px;
+            min-height: 38px;
             background: #FFFFFF;
             border-top: 3px solid #60C0A8;
             border-bottom: 1px solid #E9ECEF;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 12px;
+            justify-content: center;
+            padding: 0 16px;
+            position: relative;
         }
         
         .header-logo {
             display: flex;
             align-items: center;
             gap: 10px;
+            justify-content: center;
         }
         .logo-img {
             height: 22px;
@@ -59,9 +61,56 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: #6C757D;
             font-size: 11px;
+            position: absolute;
+            right: 16px;
+        }
+
+        /* KPI horizontal band */
+        .kpi-band {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E9ECEF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            padding: 4px 16px;
+            flex-shrink: 0;
+        }
+        .kpi-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3px 14px;
+            border-right: 1px solid #E9ECEF;
+            min-width: 110px;
+        }
+        .kpi-stage:last-child { border-right: none; }
+        .kpi-stage-label {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6C757D;
+            letter-spacing: 0.5px;
+        }
+        .kpi-stage-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212121;
+            line-height: 1.1;
+        }
+        .kpi-stage-pct {
+            font-size: 9px;
+            color: #60C0A8;
+            font-weight: 600;
+        }
+        .kpi-arrow {
+            color: #C0C0C0;
+            font-size: 16px;
+            padding: 0 4px;
+            align-self: center;
         }
         
         .live-dot {
@@ -80,7 +129,7 @@
         
         .dashboard {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(6, 1fr);
             grid-template-rows: 1fr 1fr 1fr;
             flex: 1;
             min-height: 0;
@@ -207,20 +256,50 @@
             <span id="timestamp">Loading...</span>
         </div>
     </div>
+
+    <!-- Funnel KPI horizontal band -->
+    <div class="kpi-band" id="kpiBand">
+        <div class="kpi-stage">
+            <span class="kpi-stage-label">Leads</span>
+            <span class="kpi-stage-value" id="kpiLeads">—</span>
+            <span class="kpi-stage-pct" id="kpiLeadsPct">&nbsp;</span>
+        </div>
+        <span class="kpi-arrow">›</span>
+        <div class="kpi-stage">
+            <span class="kpi-stage-label">MQLs</span>
+            <span class="kpi-stage-value" id="kpiMqls">—</span>
+            <span class="kpi-stage-pct" id="kpiMqlsPct">&nbsp;</span>
+        </div>
+        <span class="kpi-arrow">›</span>
+        <div class="kpi-stage">
+            <span class="kpi-stage-label">SQLs</span>
+            <span class="kpi-stage-value" id="kpiSqls">—</span>
+            <span class="kpi-stage-pct" id="kpiSqlsPct">&nbsp;</span>
+        </div>
+        <span class="kpi-arrow">›</span>
+        <div class="kpi-stage">
+            <span class="kpi-stage-label">Visit Dates</span>
+            <span class="kpi-stage-value" id="kpiVisits">—</span>
+            <span class="kpi-stage-pct" id="kpiVisitsPct">&nbsp;</span>
+        </div>
+        <span class="kpi-arrow">›</span>
+        <div class="kpi-stage">
+            <span class="kpi-stage-label">Tours</span>
+            <span class="kpi-stage-value" id="kpiTours">—</span>
+            <span class="kpi-stage-pct" id="kpiToursPct">&nbsp;</span>
+        </div>
+        <span class="kpi-arrow">›</span>
+        <div class="kpi-stage">
+            <span class="kpi-stage-label">Final Decision</span>
+            <span class="kpi-stage-value" id="kpiFinal">—</span>
+            <span class="kpi-stage-pct" id="kpiFinalPct">&nbsp;</span>
+        </div>
+    </div>
     
     <div class="dashboard">
-        <!-- 1. Funnel KPI -->
-        <div class="card">
-            <div class="card-title">Funnel KPI (This Month)</div>
-            <div class="card-content">
-                <div class="funnel" id="funnelKpi">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-        </div>
         
         <!-- 2. Form Submissions 24h -->
-        <div class="card">
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">Form Submissions >24h (KPI: <1 by 16:00)</div>
             <div class="card-content">
                 <canvas id="formChart"></canvas>
@@ -228,7 +307,7 @@
         </div>
         
         <!-- 3. Marketing Email Forms -->
-        <div class="card">
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">Marketing Email Forms (KPI: <1 by Wed 12:00)</div>
             <div class="card-content">
                 <canvas id="emailChart"></canvas>
@@ -236,7 +315,7 @@
         </div>
         
         <!-- 4. Tasks Overdue -->
-        <div class="card">
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">Tasks Overdue (KPI: &lt;40)</div>
             <div class="card-content">
                 <div class="chart-container">
@@ -246,7 +325,7 @@
         </div>
         
         <!-- 5. Active Contacts FY -->
-        <div class="card">
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">Active Contacts FY - 30d Ago (KPI: <5)</div>
             <div class="card-content">
                 <canvas id="activeFyChart"></canvas>
@@ -254,7 +333,7 @@
         </div>
         
         <!-- 6. Active Contacts All -->
-        <div class="card">
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">Active Contacts All - 30d Ago (KPI: <5)</div>
             <div class="card-content">
                 <canvas id="activeAllChart"></canvas>
@@ -262,23 +341,23 @@
         </div>
         
         <!-- 7. Activities 30d -->
-        <div class="card">
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">Activities (Non-Automated) - Last 30d</div>
             <div class="card-content">
                 <canvas id="activitiesChart"></canvas>
             </div>
         </div>
         
-        <!-- 8. SQL 30d -->
-        <div class="card">
+        <!-- 8. SQL 30d - spans 3 cols (last row, 2 cards) -->
+        <div class="card" style="grid-column:span 3">
             <div class="card-title">All Lead → SQL - Last 30d</div>
             <div class="card-content">
                 <canvas id="sqlChart"></canvas>
             </div>
         </div>
         
-        <!-- 9. Deals 30d -->
-        <div class="card">
+        <!-- 9. Deals 30d - spans 3 cols (last row, 2 cards) -->
+        <div class="card" style="grid-column:span 3">
             <div class="card-title">All Lead → Deals - Last 30d</div>
             <div class="card-content">
                 <canvas id="dealsChart"></canvas>
@@ -431,32 +510,28 @@
         }
         
         function updateFunnelKpi(data) {
-            const stages = [
-                { name: 'Leads', value: data.leads || 0 },
-                { name: 'MQLs', value: data.mqls || 0 },
-                { name: 'SQLs', value: data.sqls || 0 },
-                { name: 'Visit Dates', value: data.visit_dates || 0 },
-                { name: 'Tours', value: data.tours || 0 },
-                { name: 'Final Decision', value: data.final_decision || 0 }
-            ];
-            
-            const maxValue = Math.max(...stages.map(s => s.value)) || 1;
-            
-            const funnelHtml = stages.map(stage => {
-                const percentage = maxValue > 0 ? (stage.value / maxValue) * 100 : 0;
-                return `
-                    <div class="funnel-stage">
-                        <div class="funnel-label">${stage.name}</div>
-                        <div class="funnel-bar">
-                            <div class="funnel-fill" style="width: ${percentage}%">
-                                ${stage.value}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            document.getElementById('funnelKpi').innerHTML = funnelHtml;
+            const leads = data.leads || 0;
+            const mqls  = data.mqls || 0;
+            const sqls  = data.sqls || 0;
+            const visits = data.visit_dates || 0;
+            const tours  = data.tours || 0;
+            const final  = data.final_decision || 0;
+
+            const pct = (a, b) => b > 0 ? (a / b * 100).toFixed(1) + '%' : '—';
+
+            document.getElementById('kpiLeads').textContent  = leads;
+            document.getElementById('kpiMqls').textContent   = mqls;
+            document.getElementById('kpiSqls').textContent   = sqls;
+            document.getElementById('kpiVisits').textContent = visits;
+            document.getElementById('kpiTours').textContent  = tours;
+            document.getElementById('kpiFinal').textContent  = final;
+
+            document.getElementById('kpiLeadsPct').textContent  = 'Base';
+            document.getElementById('kpiMqlsPct').textContent   = pct(mqls, leads) + ' of leads';
+            document.getElementById('kpiSqlsPct').textContent   = pct(sqls, mqls) + ' of MQLs';
+            document.getElementById('kpiVisitsPct').textContent = pct(visits, sqls) + ' of SQLs';
+            document.getElementById('kpiToursPct').textContent  = pct(tours, visits) + ' of visits';
+            document.getElementById('kpiFinalPct').textContent  = pct(final, tours) + ' of tours';
         }
         
         function updateTasksOverdue(data) {
