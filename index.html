@@ -255,6 +255,41 @@
             border-radius: 3px;
             border: 1px solid #E9ECEF;
         }
+
+        /* ── Mobile responsive ── */
+        @media (max-width: 768px) {
+            html, body { height: auto; overflow: auto; }
+            .header { height: auto; padding: 8px 12px; }
+            .logo-img { height: 32px; }
+            .dashboard-label { font-size: 14px; }
+            .kpi-band {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 0;
+            }
+            .kpi-stage {
+                width: 33.33%;
+                min-width: 0;
+                border-right: none;
+                border-bottom: 1px solid #E9ECEF;
+                padding: 6px 8px;
+            }
+            .kpi-stage:nth-child(odd of .kpi-stage) { border-right: 1px solid #E9ECEF; }
+            .kpi-arrow { display: none; }
+            .kpi-stage-value { font-size: 16px; }
+            .dashboard {
+                grid-template-columns: 1fr !important;
+                grid-template-rows: auto !important;
+                height: auto !important;
+                gap: 8px;
+                padding: 8px;
+            }
+            .dashboard .card {
+                grid-column: span 1 !important;
+                min-height: 220px;
+            }
+            .header-right { position: static; margin-top: 4px; }
+        }
     </style>
 </head>
 <body>
@@ -538,19 +573,7 @@
         }
         
         function updateFunnelKpi(data) {
-            // Static goal/benchmark numbers — do not link to live data
-            const goals = [
-                { id: 'kpiLeads',  val: '240',  pct: 'Goal',           label: 'Leads' },
-                { id: 'kpiMqls',   val: '10',   pct: '4.17% of leads', label: 'MQLs' },
-                { id: 'kpiSqls',   val: '6.75', pct: '67.5% of MQLs',  label: 'SQLs' },
-                { id: 'kpiVisits', val: '2.25', pct: '33.3% of SQLs',  label: 'Visit Dates' },
-                { id: 'kpiTours',  val: '1.5',  pct: '66.7% of visits',label: 'Tours' },
-                { id: 'kpiFinal',  val: '1',    pct: '66.7% of tours', label: 'Won' },
-            ];
-            goals.forEach(g => {
-                document.getElementById(g.id).textContent = g.val;
-                document.getElementById(g.id + 'Pct').textContent = g.pct;
-            });
+            // Static — values are hardcoded in HTML, nothing to update
         }
         
         function updateTasksOverdue(data) {
