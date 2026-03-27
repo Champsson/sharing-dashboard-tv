@@ -297,7 +297,15 @@
     </div>
     
     <div class="dashboard">
-        
+
+        <!-- 1. Speed to Lead -->
+        <div class="card" style="grid-column:span 2">
+            <div class="card-title">Speed to Lead — Last Month (avg hours to first call)</div>
+            <div class="card-content">
+                <canvas id="speedToLeadChart"></canvas>
+            </div>
+        </div>
+
         <!-- 2. Form Submissions 24h -->
         <div class="card" style="grid-column:span 2">
             <div class="card-title">Form Submissions >24h (KPI: <1 by 16:00)</div>
@@ -348,21 +356,23 @@
             </div>
         </div>
         
-        <!-- 8. SQL 30d - spans 3 cols (last row, 2 cards) -->
-        <div class="card" style="grid-column:span 3">
+        <!-- 8. SQL 30d -->
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">All Lead → SQL - Last 30d</div>
             <div class="card-content">
                 <canvas id="sqlChart"></canvas>
             </div>
         </div>
         
-        <!-- 9. Deals 30d - spans 3 cols (last row, 2 cards) -->
-        <div class="card" style="grid-column:span 3">
+        <!-- 9. Deals 30d -->
+        <div class="card" style="grid-column:span 2">
             <div class="card-title">All Lead → Deals - Last 30d</div>
             <div class="card-content">
                 <canvas id="dealsChart"></canvas>
             </div>
         </div>
+        
+
     </div>
     
     <script>
@@ -537,6 +547,10 @@
         function updateTasksOverdue(data) {
             createBarChart('tasksChart', data.by_owner || {}, colors.primary, true);
         }
+
+        function updateSpeedToLead(data) {
+            createBarChart('speedToLeadChart', data || {}, colors.primary, true);
+        }
         
         function updateDashboard() {
             fetch('https://gist.githubusercontent.com/Champsson/f7cd3800adbcde47b870335b2366216b/raw/dashboard-data.json?t=' + Date.now())
@@ -553,6 +567,7 @@
                     
                     // Update all components
                     updateFunnelKpi(data.funnel_kpi || {});
+                    updateSpeedToLead(data.speed_to_lead || {});
                     createBarChart('formChart', data.form_submissions_24h || {}, colors.primary, true);
                     createBarChart('emailChart', data.marketing_email_forms || {}, colors.primary, true);
                     updateTasksOverdue(data.tasks_overdue || {});
