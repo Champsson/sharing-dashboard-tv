@@ -291,6 +291,7 @@
             .header-right { position: static; margin-top: 4px; }
         }
     </style>
+<!-- build:1774618978 -->
 </head>
 <body>
     <div class="header">
@@ -682,8 +683,9 @@
                     createBarChart('formChart', data.form_submissions_24h || {}, colors.primary, true);
                     createBarChart('emailChart', data.marketing_email_forms || {}, colors.primary, true);
                     updateTasksOverdue(data.tasks_overdue || {});
-                    createBarChart('activeFyChart', data.active_contacts_fy || {}, colors.primary, true);
-                    createBarChart('activeAllChart', data.active_contacts_all || {}, colors.primary, true);
+                    // Active contacts: KPI ≤ 5 = green, > 5 = red
+                    createThresholdBarChart('activeFyChart', data.active_contacts_fy || {}, 5, 'below');
+                    createThresholdBarChart('activeAllChart', data.active_contacts_all || {}, 5, 'below');
                     
                     // Activities stacked chart
                     createStackedBarChart('activitiesChart', data.activities_30d || {}, {
