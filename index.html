@@ -318,7 +318,7 @@
 
         <!-- 1. Speed to Lead -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Speed to Lead — Last Month (avg hours to first call)</div>
+            <div class="card-title">Speed to Lead — Last Month (hours · KPI: &lt;8h 🟢 &gt;8h 🔴)</div>
             <div class="card-content">
                 <canvas id="speedToLeadChart"></canvas>
             </div>
@@ -558,7 +558,49 @@
         }
 
         function updateSpeedToLead(data) {
-            createBarChart('speedToLeadChart', data || {}, colors.primary, true);
+            const KPI_HOURS = 8;
+            const d = data || {};
+            const labels = Object.keys(d);
+            const values = Object.values(d);
+            const barColors = values.map(v => v <= KPI_HOURS ? '#60C0A8' : '#DC3545');
+
+            if (charts['speedToLeadChart']) {
+                charts['speedToLeadChart'].destroy();
+            }
+            const ctx = document.getElementById('speedToLeadChart');
+            if (!ctx || labels.length === 0) return;
+            charts['speedToLeadChart'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: barColors,
+                        borderRadius: 3,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.parsed.y + ' hrs'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { font: { size: 9 }, callback: v => v + 'h' },
+                            grid: { color: '#E9ECEF' }
+                        }
+                    },
+                    animation: false
+                }
+            });
         }
         
         function updateDashboard() {
