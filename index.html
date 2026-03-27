@@ -290,7 +290,7 @@
         </div>
         <span class="kpi-arrow">›</span>
         <div class="kpi-stage">
-            <span class="kpi-stage-label">Final Decision</span>
+            <span class="kpi-stage-label">Won</span>
             <span class="kpi-stage-value" id="kpiFinal">—</span>
             <span class="kpi-stage-pct" id="kpiFinalPct">&nbsp;</span>
         </div>
@@ -520,28 +520,19 @@
         }
         
         function updateFunnelKpi(data) {
-            const leads = data.leads || 0;
-            const mqls  = data.mqls || 0;
-            const sqls  = data.sqls || 0;
-            const visits = data.visit_dates || 0;
-            const tours  = data.tours || 0;
-            const final  = data.final_decision || 0;
-
-            const pct = (a, b) => b > 0 ? (a / b * 100).toFixed(1) + '%' : '—';
-
-            document.getElementById('kpiLeads').textContent  = leads;
-            document.getElementById('kpiMqls').textContent   = mqls;
-            document.getElementById('kpiSqls').textContent   = sqls;
-            document.getElementById('kpiVisits').textContent = visits;
-            document.getElementById('kpiTours').textContent  = tours;
-            document.getElementById('kpiFinal').textContent  = final;
-
-            document.getElementById('kpiLeadsPct').textContent  = 'Base';
-            document.getElementById('kpiMqlsPct').textContent   = pct(mqls, leads) + ' of leads';
-            document.getElementById('kpiSqlsPct').textContent   = pct(sqls, mqls) + ' of MQLs';
-            document.getElementById('kpiVisitsPct').textContent = pct(visits, sqls) + ' of SQLs';
-            document.getElementById('kpiToursPct').textContent  = pct(tours, visits) + ' of visits';
-            document.getElementById('kpiFinalPct').textContent  = pct(final, tours) + ' of tours';
+            // Static goal/benchmark numbers — do not link to live data
+            const goals = [
+                { id: 'kpiLeads',  val: '420',  pct: 'Goal',           label: 'Leads' },
+                { id: 'kpiMqls',   val: '10',   pct: '2.4% of leads',  label: 'MQLs' },
+                { id: 'kpiSqls',   val: '6.75', pct: '67.5% of MQLs',  label: 'SQLs' },
+                { id: 'kpiVisits', val: '2.25', pct: '33.3% of SQLs',  label: 'Visit Dates' },
+                { id: 'kpiTours',  val: '1.5',  pct: '66.7% of visits',label: 'Tours' },
+                { id: 'kpiFinal',  val: '1',    pct: '66.7% of tours', label: 'Won' },
+            ];
+            goals.forEach(g => {
+                document.getElementById(g.id).textContent = g.val;
+                document.getElementById(g.id + 'Pct').textContent = g.pct;
+            });
         }
         
         function updateTasksOverdue(data) {
