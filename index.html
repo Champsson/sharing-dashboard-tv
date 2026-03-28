@@ -291,7 +291,7 @@
             .header-right { position: static; margin-top: 4px; }
         }
     </style>
-<!-- build:1774618978 -->
+<!-- build:1774737963 -->
 </head>
 <body>
     <div class="header">
@@ -680,7 +680,8 @@
                     // Update all components
                     updateFunnelKpi(data.funnel_kpi || {});
                     updateSpeedToLead(data.speed_to_lead || {});
-                    createBarChart('formChart', data.form_submissions_24h || {}, colors.primary, true);
+                    // Form submissions: KPI ≤ 1 = green, > 1 = red
+                    createThresholdBarChart('formChart', data.form_submissions_24h || {}, 1, 'below');
                     createBarChart('emailChart', data.marketing_email_forms || {}, colors.primary, true);
                     updateTasksOverdue(data.tasks_overdue || {});
                     // Active contacts: KPI ≤ 5 = green, > 5 = red
