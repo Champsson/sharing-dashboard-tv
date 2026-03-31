@@ -14,6 +14,80 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+const charts = {};
+
+const dataLabelPlugin = {
+  id: 'dataLabels',
+  afterDatasetsDraw(chart) {
+    const {ctx, data, scales:{x,y}} = chart;
+    if (!chart.config.options.plugins?.dataLabels?.display) return;
+    const isStacked = chart.config.options.scales?.y?.stacked;
+    if (isStacked) {
+      const totals = data.labels.map((_, i) =>
+        data.datasets.reduce((s,ds) => s + (ds.data[i]||0), 0)
+      );
+      ctx.save();
+      ctx.font = 'bold 7px Poppins,sans-serif';
+      ctx.fillStyle = '#212529';
+      ctx.textAlign = 'center';
+      data.labels.forEach((_, i) => {
+        const total = totals[i];
+        if (!total) return;
+        const xPos = x.getPixelForValue(i);
+        const yPos = y.getPixelForValue(total) - 3;
+        ctx.fillText(total, xPos, yPos);
+      });
+      ctx.restore();
+    } else {
+      ctx.save();
+      ctx.font = 'bold 7px Poppins,sans-serif';
+      ctx.textAlign = 'center';
+      data.datasets.forEach((ds, di) => {
+        const meta = chart.getDatasetMeta(di);
+        meta.data.forEach((bar, i) => {
+          const val = ds.data[i];
+          if (!val && val !== 0) return;
+          const display = Number.isInteger(val) ? val : val.toFixed(1);
+          ctx.fillStyle = '#212529';
+          ctx.fillText(display, bar.x, bar.y - 3);
+        });
+      });
+      ctx.restore();
+    }
+  }
+};
+Chart.register(dataLabelPlugin);
+
+function createThresholdBarChart(canvasId, data, threshold, dir='above') {
+  if (charts[canvasId]) charts[canvasId].destroy();
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const labels = Object.keys(data), values = Object.values(data);
+  if (!labels.length) return;
+  const G='#60C0A8', R='#DC3545';
+  const colors = values.map(v => dir === 'above' ? (v >= threshold ? G : R) : (v <= threshold ? G : R));
+  charts[canvasId] = new Chart(canvas, {
+    type: 'bar',
+    data: {labels, datasets: [{data: values, backgroundColor: colors, borderWidth: 0, borderRadius: 2}]},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {legend: {display: false}, dataLabels: {display: true}},
+      scales: {
+        x: {grid: {display: false}, ticks: {font: {size: 7}, maxRotation: 45}},
+        y: {beginAtZero: true, grid: {color: '#E9ECEF'}, ticks: {precision: 0, font: {size: 8}}}
+      },
+      layout: {padding: {top: 12}}
+    }
+  });
+}
+
+function createStackedBarChart(canvasId, data, colorMap) {
+  if (charts[canvasId]) charts[canvasId].destroy();
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const owners = Object.keys(data), activities = Object.keys(colorMap);
+}
     <style>
         * {
             margin: 0;
