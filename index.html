@@ -14,81 +14,6 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-
-<script>
-const charts = {};
-
-const dataLabelPlugin = {
-  id: 'dataLabels',
-  afterDatasetsDraw(chart) {
-    const {ctx, data, scales:{x,y}} = chart;
-    if (!chart.config.options.plugins?.dataLabels?.display) return;
-    const isStacked = chart.config.options.scales?.y?.stacked;
-    if (isStacked) {
-      const totals = data.labels.map((_, i) =>
-        data.datasets.reduce((s,ds) => s + (ds.data[i]||0), 0)
-      );
-      ctx.save();
-      ctx.font = 'bold 7px Poppins,sans-serif';
-      ctx.fillStyle = '#212529';
-      ctx.textAlign = 'center';
-      data.labels.forEach((_, i) => {
-        const total = totals[i];
-        if (!total) return;
-        const xPos = x.getPixelForValue(i);
-        const yPos = y.getPixelForValue(total) - 3;
-        ctx.fillText(total, xPos, yPos);
-      });
-      ctx.restore();
-    } else {
-      ctx.save();
-      ctx.font = 'bold 7px Poppins,sans-serif';
-      ctx.textAlign = 'center';
-      data.datasets.forEach((ds, di) => {
-        const meta = chart.getDatasetMeta(di);
-        meta.data.forEach((bar, i) => {
-          const val = ds.data[i];
-          if (!val && val !== 0) return;
-          const display = Number.isInteger(val) ? val : val.toFixed(1);
-          ctx.fillStyle = '#212529';
-          ctx.fillText(display, bar.x, bar.y - 3);
-        });
-      });
-      ctx.restore();
-    }
-  }
-};
-Chart.register(dataLabelPlugin);
-
-function createThresholdBarChart(canvasId, data, threshold, dir='above') {
-  if (charts[canvasId]) charts[canvasId].destroy();
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const labels = Object.keys(data), values = Object.values(data);
-  if (!labels.length) return;
-  const G='#60C0A8', R='#DC3545';
-  const colors = values.map(v => dir === 'above' ? (v >= threshold ? G : R) : (v <= threshold ? G : R));
-  charts[canvasId] = new Chart(canvas, {
-    type: 'bar',
-    data: {labels, datasets: [{data: values, backgroundColor: colors, borderWidth: 0, borderRadius: 2}]},
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: false,
-      plugins: {legend: {display: false}, dataLabels: {display: true}},
-      scales: {
-        x: {grid: {display: false}, ticks: {font: {size: 7}, maxRotation: 45}},
-        y: {beginAtZero: true, grid: {color: '#E9ECEF'}, ticks: {precision: 0, font: {size: 8}}}
-      },
-      layout: {padding: {top: 12}}
-    }
-  });
-}
-
-function createStackedBarChart(canvasId, data, colorMap) {
-  if (charts[canvasId]) charts[canvasId].destroy();
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const owners = Object.keys(data), activities = Object.keys(colorMap);
-}
     <style>
         * {
             margin: 0;
@@ -429,7 +354,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
 
         <!-- 1. Speed to Lead -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Speed to Lead — Last Month (hours · KPI: &lt;8h 🟢 &gt;8h 🔴)</div>
+            <div class="card-title">Speed to Lead — Last Month &nbsp;|&nbsp; KPI [🟢 ≤8h &nbsp; 🔴 >8h]</div>
             <div class="card-content">
                 <canvas id="speedToLeadChart"></canvas>
             </div>
@@ -437,7 +362,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
 
         <!-- 2. Form Submissions 24h -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Form Submissions >24h (KPI: <1 by 16:00)</div>
+            <div class="card-title">Form Submissions >24h &nbsp;|&nbsp; KPI [🟢 0 &nbsp; 🔴 ≥1]</div>
             <div class="card-content">
                 <canvas id="formChart"></canvas>
             </div>
@@ -445,7 +370,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
         
         <!-- 3. Marketing Email Forms -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Marketing Email Forms (KPI: <1 by Wed 12:00)</div>
+            <div class="card-title">Marketing Email Forms &nbsp;|&nbsp; KPI [🟢 0 &nbsp; 🔴 ≥1]</div>
             <div class="card-content">
                 <canvas id="emailChart"></canvas>
             </div>
@@ -453,7 +378,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
         
         <!-- 4. Tasks Overdue -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Tasks Overdue (KPI: &lt;40)</div>
+            <div class="card-title">Tasks Overdue &nbsp;|&nbsp; KPI [🟢 ≤40 &nbsp; 🔴 >40]</div>
             <div class="card-content">
                 <div class="chart-container">
                     <canvas id="tasksChart"></canvas>
@@ -463,7 +388,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
         
         <!-- 5. Active Contacts FY -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Active Contacts FY - 30d Ago (KPI: <5)</div>
+            <div class="card-title">Active Contacts FY — 30d+ Ago &nbsp;|&nbsp; KPI [🟢 ≤5 &nbsp; 🔴 >5]</div>
             <div class="card-content">
                 <canvas id="activeFyChart"></canvas>
             </div>
@@ -471,7 +396,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
         
         <!-- 6. Active Contacts All -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Active Contacts All - 30d Ago (KPI: <5)</div>
+            <div class="card-title">Active Contacts All — 30d+ Ago &nbsp;|&nbsp; KPI [🟢 ≤5 &nbsp; 🔴 >5]</div>
             <div class="card-content">
                 <canvas id="activeAllChart"></canvas>
             </div>
@@ -479,7 +404,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
         
         <!-- 7. Activities 30d -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">Activities (Non-Automated) - Last 30d</div>
+            <div class="card-title">Activities — Last 30d &nbsp;|&nbsp; Non-Automated</div>
             <div class="card-content">
                 <canvas id="activitiesChart"></canvas>
             </div>
@@ -487,7 +412,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
         
         <!-- 8. SQL 30d -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">All Lead → SQL - Last 30d</div>
+            <div class="card-title">All Lead → SQL — Last 30d &nbsp;|&nbsp; KPI [🟢 ≥6.75 &nbsp; 🔴 <6.75]</div>
             <div class="card-content">
                 <canvas id="sqlChart"></canvas>
             </div>
@@ -495,7 +420,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
         
         <!-- 9. Deals 30d -->
         <div class="card" style="grid-column:span 2">
-            <div class="card-title">All Lead → Deals - Last 30d</div>
+            <div class="card-title">All Lead → Deals — Last 30d &nbsp;|&nbsp; KPI [🟢 ≥2.25 &nbsp; 🔴 <2.25]</div>
             <div class="card-content">
                 <canvas id="dealsChart"></canvas>
             </div>
@@ -506,6 +431,50 @@ function createStackedBarChart(canvasId, data, colorMap) {
     
     <script>
         // Chart.js default config
+
+        // dataLabel plugin — shows values above bars
+        const dataLabelPlugin = {
+            id: 'dataLabels',
+            afterDatasetsDraw(chart) {
+                const {ctx, data, scales:{x,y}} = chart;
+                if (!chart.config.options.plugins?.dataLabels?.display) return;
+                const isStacked = chart.config.options.scales?.y?.stacked;
+                if (isStacked) {
+                    const totals = data.labels.map((_, i) =>
+                        data.datasets.reduce((s,ds) => s + (ds.data[i]||0), 0)
+                    );
+                    ctx.save();
+                    ctx.font = 'bold 7px Poppins,sans-serif';
+                    ctx.fillStyle = '#212529';
+                    ctx.textAlign = 'center';
+                    data.labels.forEach((_, i) => {
+                        const total = totals[i];
+                        if (!total) return;
+                        const xPos = x.getPixelForValue(i);
+                        const yPos = y.getPixelForValue(total) - 3;
+                        ctx.fillText(total, xPos, yPos);
+                    });
+                    ctx.restore();
+                } else {
+                    ctx.save();
+                    ctx.font = 'bold 7px Poppins,sans-serif';
+                    ctx.textAlign = 'center';
+                    data.datasets.forEach((ds, di) => {
+                        const meta = chart.getDatasetMeta(di);
+                        meta.data.forEach((bar, i) => {
+                            const val = ds.data[i];
+                            if (!val && val !== 0) return;
+                            const display = Number.isInteger(val) ? val : val.toFixed(1);
+                            ctx.fillStyle = '#212529';
+                            ctx.fillText(display, bar.x, bar.y - 3);
+                        });
+                    });
+                    ctx.restore();
+                }
+            }
+        };
+        Chart.register(dataLabelPlugin);
+
         Chart.defaults.font.family = 'Poppins';
         Chart.defaults.font.size = 10;
         Chart.defaults.color = '#6C757D';
@@ -604,12 +573,14 @@ function createStackedBarChart(canvasId, data, colorMap) {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        tooltip: { enabled: true }
+                        tooltip: { enabled: true },
+                        dataLabels: { display: true }
                     },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { size: 9 } } },
                         y: { beginAtZero: true, grid: { color: '#E9ECEF' }, ticks: { precision: 0, font: { size: 9 } } }
                     },
+                    layout: { padding: { top: 12 } },
                     animation: false
                 }
             });
@@ -650,6 +621,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
                         }
                     },
                     plugins: {
+                        dataLabels: { display: true },
                         legend: {
                             display: true,
                             position: 'top',
@@ -660,6 +632,7 @@ function createStackedBarChart(canvasId, data, colorMap) {
                             }
                         }
                     },
+                    layout: { padding: { top: 14 } },
                     onComplete: function() {
                         const chart = this;
                         const ctx = chart.ctx;
@@ -720,12 +693,14 @@ function createStackedBarChart(canvasId, data, colorMap) {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
+                        dataLabels: { display: true },
                         tooltip: {
                             callbacks: {
                                 label: ctx => ctx.parsed.y + ' hrs'
                             }
                         }
                     },
+                    layout: { padding: { top: 12 } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { size: 9 } } },
                         y: {
